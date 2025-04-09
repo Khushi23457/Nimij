@@ -1,0 +1,114 @@
+<%- include('./partials/header') %>
+<% if(error.length>0){ %>
+    <div id="flash-message" class="absolute top-5 left-1/2 -translate-x-1/2 -translate-y-1/2 p-3 rounded-md bg-red-500">
+        <span class="inline-block mt-1 mb-1 text-white">
+            <%= error %>
+        </span>
+    </div>
+    <% } %>
+    <% if(success.length>0){ %>
+        <div id="flash-message" class="absolute top-5 left-1/2 -translate-x-1/2 -translate-y-1/2 p-3 rounded-md bg-blue-500">
+            <span class="inline-block mt-1 mb-1 text-white">
+                <%= success %>
+            </span>
+        </div>
+        <% } %>
+<div class="w-full min-h-screen pt-20 px-4 md:px-10">
+    <h1 class="text-3xl font-bold mb-6">My Orders</h1>
+    
+    <% if(orders && orders.length > 0) { %>
+        <div class="grid gap-6">
+            <% orders.forEach(function(order) { %>
+                <div class="border rounded-lg p-4 ">
+                    <div class="flex justify-between items-center border-b pb-3 mb-3">
+                        <div>
+                            <span class="text-gray-500">Order ID:</span>
+                            <span class="font-semibold ml-2">#<%= order._id.toString().slice(-8).toUpperCase() %></span>
+                        </div>
+                        <div>
+                            <span class="text-gray-500">Date:</span>
+                            <span class="ml-2"><%= new Date(order.createdAt).toLocaleDateString() %></span>
+                        </div>
+                        <div>
+                            <span class="<%= order.status === 'delivered' ? 'bg-green-100 text-green-800' : 
+                                           order.status === 'shipped' ? 'bg-blue-100 text-blue-800' : 
+                                           order.status === 'processing' ? 'bg-yellow-100 text-yellow-800' : 
+                                           order.status === 'cancelled' ? 'bg-red-100 text-red-800' : 
+                                           'bg-gray-100 text-gray-800' %> 
+                                    px-3 py-1 rounded-full text-sm font-medium">
+                                <%= order.status.charAt(0).toUpperCase() + order.status.slice(1) %>
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h3 class="text-lg font-semibold mb-2">Items</h3>
+                        <div class="space-y-3">
+                            <% order.product.forEach(function(item) { %>
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-16 w-16 bg-gray-100 rounded-md overflow-hidden">
+                                        <img src="data:image/jpeg;base64,<%= item.products.image.toString('base64') %>"  alt="<%= item.products.name %>" class="h-full w-full object-cover">
+                                    </div>
+                                    <div class="ml-4 flex-grow">
+                                        <h4 class="font-medium"><%= item.products.name %></h4>
+                                        <p class="text-gray-500">Qty: <%= item.quantity %> x ₹<%= item.price %></p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="font-medium">₹<%= item.quantity * item.price %></p>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        </div>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <h3 class="text-lg font-semibold mb-2">Delivery Address</h3>
+                            <div class="border rounded p-3">
+                                <% const address = user.Address.find(addr => addr._id.toString() === order.Addressid.toString()); %>
+                                <p class="font-medium"><%= address.name %></p>
+                                <p><%= address.street %></p>
+                                <p><%= address.city %>, <%= address.state %> - <%= address.pincode %></p>
+                                <p class="mt-1">Phone: <%= address.phone %></p>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-lg font-semibold mb-2">Order Summary</h3>
+                            <div class="border rounded p-3">
+                                
+                                <div class="border-t pt-2 mt-2 flex justify-between font-semibold">
+                                    <span>Total:</span>
+                                    <span>₹<%= order.totalAmount %></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <% if(order.status !== 'delivered' && order.status !== 'cancelled') { %>
+                        <div class="border-t pt-3 flex justify-end">
+                            <form action="/users/cancel-order/<%= order._id %>" method="POST" onsubmit="return confirm('Are you sure you want to cancel this order?');">
+                                <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded-md text-sm">Cancel Order</button>
+                            </form>
+                        </div>
+                    <% } %>
+                </div>
+            <% }); %>
+        </div>
+    <% } else { %>
+        <div class="flex flex-col items-center justify-center p-10 border rounded-lg bg-gray-50">
+            <h2 class="text-2xl font-medium text-gray-700">No Orders Yet</h2>
+            <p class="text-gray-500 mb-6">You haven't placed any orders yet</p>
+            <a href="/shop" class="px-6 py-3 bg-black text-white rounded-md">Start Shopping</a>
+        </div>
+    <% } %>
+</div>
+
+<% if(error.length > 0|| success.length>0){ %>
+    <script>
+      const flashMessage = document.getElementById('flash-message');
+      setTimeout(() => {
+        flashMessage.style.display = 'none';
+      }, 3000);
+    </script>
+  <% } %>

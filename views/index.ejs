@@ -1,0 +1,50 @@
+<%- include('./partials/header') %>
+<% if(error.length>0){ %>
+  <div id="flash-message" class="absolute top-5 left-1/2 -translate-x-1/2 -translate-y-1/2 p-3 rounded-md bg-red-500">
+      <span class="inline-block mt-1 mb-1 text-white">
+          <%= error %>
+      </span>
+  </div>
+  <% } %>
+
+<div class="w-full h-screen flex px-10" >
+  <div class="bg-red-200 w-1/2 h-screen flex px-5 py-28 justify-center mr-5">
+    <div class=" w-full ">
+    <h1 class="text-4xl">Welcome to <span class="text-sky-500 font-semibold">Nimij</span> </h1>
+    <h1 class="text-3xl mt-5 mb-5">Create Your Account</h1>
+    <form autocomplete="off" method="post" action="/users/register">
+        <h1 class="text-xl  mt-5 mb-5">FullName</h1>
+          <input type="text" placeholder="Fullname" name="fullname">
+          <h1 class="text-xl  mt-5 mb-5">Email</h1>
+          <input type="email" placeholder="Email" name="email">
+          <h1 class="text-xl  mt-5 mb-5">Password</h1>
+          <input type="password" placeholder="Password" name="password">
+          <hr class="mb-5">
+          <input class="rounded-md px-4 py-2 bg-green-500  text-xl" type="submit" value="Create">
+    </form>
+    </div>   
+  </div>
+  <div class="bg-red-200 w-1/2 h-screen flex px-5 py-28 justify-center ml-5">
+    <div class=" w-full ">
+    <h1 class="text-4xl">Welcome to <span class="text-sky-500 font-semibold">Nimij</span> </h1>
+    <h1 class="text-3xl mt-5 mb-5">Login To Your Account</h1>
+    <form autocomplete="email" method="post" action="/users/login">
+          <h1 class="text-xl  mt-5 mb-5">Email</h1>
+          <input type="email" placeholder="Email" name="email">
+          <h1 class="text-xl  mt-5 mb-5">Password</h1>
+          <input type="password" placeholder="Password" name="password">
+          <hr class="mb-5">
+          <input class="rounded-md px-4 py-2 bg-green-500  text-xl" type="submit" value="Login">
+    </form>
+    </div>   
+  </div>
+  <div></div>
+</div>
+<% if(error.length > 0){ %>
+  <script>
+    const flashMessage = document.getElementById('flash-message');
+    setTimeout(() => {
+      flashMessage.style.display = 'none';
+    }, 3000);
+  </script>
+<% } %>

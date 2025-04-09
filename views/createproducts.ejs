@@ -1,0 +1,49 @@
+<%- include('./partials/header') %>
+
+<% if(success.length>0){ %>
+    <div id="flash-message" class="absolute top-5 left-1/2 -translate-x-1/2 -translate-y-1/2 p-3 rounded-md bg-blue-500">
+        <span class="inline-block mt-1 mb-1 text-white">
+            <%= success %>
+        </span>
+    </div>
+    <% } %>
+    <div class="py-16 flex h-screen w-full ">
+        <div class="w-[20%] h-screen flex flex-col bg-sky-200">
+            <div class=" flex flex-col gap-2 mt-5 ml-3 ">
+                <a class="block w-fit mb-2" href="/owners/orders">All Products Orders</a>
+                <a class="block w-fit mb-2" href="/owners/admin">Create New Product</a>
+                <a class="block w-fit mb-2" href="/owners/products">Manage Products</a>
+            </div>
+        </div>
+        <div class="w-[80%] h-screen flex flex-col">
+           <div class="p-8 ">
+            <h1 class="text-2xl text-center font-semibold mb-4">Create New Product</h1>
+            <form autocomplete="off" method="post" action="/products/create" enctype="multipart/form-data">
+                <h1 class="text-xl font-semibold mb-5">Product Details</h1>
+                <label class="text-xl font-medium">Product Image: </label>
+                <input type="file" name="image" value="Select Image">
+                <div class="grid grid-cols-3 gap-4 p-4 m-3">
+                   <input class="p-2 rounded-md border-sky-200 border-2" type="text" name="name" placeholder="Product Name">
+                   <input class="p-2 rounded-md border-sky-200 border-2" type="text" name="price" placeholder="Product Price">
+                   <input class="p-2 rounded-md border-sky-200 border-2" type="text" name="discount" placeholder="Discount Price">
+                </div>
+                <h1 class="text-xl font-semibold mb-5">Panel Details</h1>
+                <div class="grid grid-cols-3 gap-4 p-4 m-3">
+                    <input class="p-2 rounded-md border-sky-200 border-2" type="text" name="bgcolor" placeholder="Background color">
+                    <input class="p-2 rounded-md border-sky-200 border-2" type="text" name="panelcolor" placeholder="Panel color">
+                    <input class="p-2 rounded-md border-sky-200 border-2" type="text" name="textcolor" placeholder="Text color">
+                 </div>
+                 <input class="px-5 py-2 rounded mt-3 bg-sky-500 text-white" type="submit"
+                                value="Create New Product">
+            </form>
+           </div>
+        </div>
+    </div>
+    <% if(success.length > 0){ %>
+        <script>
+          const flashMessage = document.getElementById('flash-message');
+          setTimeout(() => {
+            flashMessage.style.display = 'none';
+          }, 3000);
+        </script>
+      <% } %>

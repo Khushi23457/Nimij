@@ -1,0 +1,83 @@
+<%- include('./partials/header') %> 
+
+<div class="w-full min-h-screen flex flex-col md:flex-row pt-20"> 
+    <% if(user.Address.length>0) { %>   
+        <div class="w-full md:w-2/3 p-6 md:p-10">
+            <div class="container mx-auto">
+                <h1 class="text-2xl font-bold mb-4">Select Delivery Address</h1>
+                <h2 class="text-xl mb-4">Existing Address</h2>
+                <div class="max-h-[70vh] overflow-y-auto pr-2">
+                    <div class="grid grid-cols-1 gap-4">
+                        <% user.Address.forEach(function(address) { %>
+                            <div class="border rounded-lg p-4 relative <%= address.isDefault ? 'border-yellow-400 bg-yellow-50' : '' %>">
+                                <% if(address.isDefault) { %>
+                                    <span class="absolute top-2 right-2 bg-yellow-400 text-xs px-2 py-1 rounded">Default</span>
+                                <% } %>
+                                <h3 class="font-semibold"><%= address.name %></h3>
+                                <p class="text-sm mt-1"><%= address.street %></p>
+                                <p class="text-sm"><%= address.city %>, <%= address.state %> - <%= address.pincode %></p>
+                                <p class="text-sm mt-1">Phone: <%= address.phone %></p>
+                                <div class="flex justify-center gap-2 mt-3">
+                                    <a href="/users/place-order/<%=address._id%>" class="px-3 py-2 bg-black text-white rounded-md text-sm">Deliver Here</a>
+                                    <a href="/users/editAddress/<%=address._id%>" class="px-3 py-2 bg-blue-500 text-white rounded-md text-sm">Edit</a>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <% } else { %>
+        <div class="w-full md:w-2/3 flex flex-col items-center justify-center p-6">
+            <h1 class="text-3xl font-bold">You do not have any address yet.</h1>
+            <h1 class="text-2xl text-zinc-900">You might want to add something</h1>
+        </div>
+    <% } %>
+    
+
+    <div class="w-full md:w-1/3 p-6 border-t md:border-t-0 md:border-l"> 
+        <div class="w-full max-w-md mx-auto"> 
+            <h1 class="text-3xl font-bold mb-6">Add New Address</h1>
+            <form autocomplete="off" method="post" action="/users/add-address" class="space-y-4">
+                <div>
+                    <label class="text-xl block mb-2">Name</label>
+                    <input type="text" placeholder="Fullname" name="name" class="w-full p-2 border rounded">
+                </div>
+                
+                <div>
+                    <label class="text-xl block mb-2">Phone</label>
+                    <input type="number" placeholder="Phone" name="phone" class="w-full p-2 border rounded">
+                </div>
+                
+                <div>
+                    <label class="text-xl block mb-2">Pincode</label>
+                    <input type="number" placeholder="Pincode" name="pincode" class="w-full p-2 border rounded">
+                </div>
+                
+                <div>
+                    <label class="text-xl block mb-2">Street</label>
+                    <input type="text" placeholder="Street" name="street" class="w-full p-2 border rounded">
+                </div>
+                
+                <div>
+                    <label class="text-xl block mb-2">City</label>
+                    <input type="text" placeholder="City" name="city" class="w-full p-2 border rounded">
+                </div>
+                
+                <div>
+                    <label class="text-xl block mb-2">State</label>
+                    <input type="text" placeholder="State" name="state" class="w-full p-2 border rounded">
+                </div>
+                
+                <div class="flex items-center">
+                    <input type="checkbox" name="isDefault" id="isDefault" class="mr-2">
+                    <label for="isDefault" class="text-xl">Make this my default address</label>
+                </div>
+                
+                <hr class="my-4">
+                
+                <button type="submit" class="w-full rounded-md px-4 py-2 bg-green-500 text-white text-xl">Create</button>
+            </form>
+        </div>
+    </div>
+</div>
