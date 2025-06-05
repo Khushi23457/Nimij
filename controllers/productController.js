@@ -2,7 +2,7 @@ const productModel = require('../models/product-model');
 
 exports.createProduct = async (req, res) => {
   try {
-    const { name, price, discount, bgcolor, panelcolor, textcolor } = req.body;
+    const { name, price, discount, bgcolor, panelcolor, textcolor,descrip } = req.body;
     
     await productModel.create({
       name,
@@ -11,7 +11,8 @@ exports.createProduct = async (req, res) => {
       price,
       bgcolor,
       textcolor,
-      panelcolor
+      panelcolor,
+      description:descrip
     });
     
     req.flash("success", "Product created successfully");
@@ -31,6 +32,7 @@ exports.updateProduct = async (req, res) => {
       textcolor: req.body.textcolor,
       panelcolor: req.body.panelcolor,
       bgcolor: req.body.bgcolor,
+      description: req.body.descrip,
       available: req.body.available
     };
 
@@ -84,4 +86,5 @@ exports.getAllProducts = async (req, res) => {
       res.redirect("/owners/products");
     }
   };
+  
   

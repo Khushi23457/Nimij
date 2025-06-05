@@ -1,68 +1,116 @@
 <%- include('./partials/header') %>
-<% if(success.length>0){ %>
-  <div id="flash-message" class="absolute top-5 left-1/2 -translate-x-1/2 -translate-y-1/2 p-3 rounded-md bg-blue-500">
-      <span class="inline-block mt-1 mb-1 text-white">
-          <%= success %>
-      </span>
-  </div>
-  <% } %>
-<div class="py-16 w-full h-screen flex items-start">
-    <div class="w-[20%] h-screen flex flex-col bg-sky-200">
-        <div class="items-center flex gap-2 mt-3 ml-3 ">
-            <h3>Sortby</h3>
-          <form action="/shop" method="get">
-           <select class="px-2 py-1 border-[1px] rounded-md" name="Sortby" onchange="this.form.submit()">
-            <option value="Popular" <%= Sortby === 'Popular'? 'selected' : '' %>>Popular</option>
-            <option value="Newest" <%= Sortby === 'Newest'? 'selected' : '' %>> Newest</option>
-           </select>
-          </form>
-        </div>
-        <div class="flex flex-col m-3">
-           <a class="mb-2 w-fit block <%= collection === 'new' ? 'font-bold' : '' %>" href="/shop?collection=new">New Collections</a>
-           <a class="mb-2 <%= !collection && !discount && !available ? 'font-bold' : '' %>" href="/shop">All Products</a>
-           <a class="mb-2 <%= discount ? 'font-bold' : '' %>" href="/shop?discount=true">Discounted Products</a>
-           <a class="mb-2" href="#" style="font-weight: bold;">Filter By:</a>
-           <a class="mb-2 <%= available ? 'font-bold' : '' %>" href="/shop?available=true">Availability</a>
-           <a class="mb-2 <%= discount ? 'font-bold' : '' %>" href="/shop?discount=true">Discount</a>
-        </div>
+
+<% if(success.length>0){ %>   
+<div id="flash-message" class="fixed top-20 left-1/2 -translate-x-1/2 p-3 rounded-md bg-blue-500 z-40">       
+    <span class="inline-block mt-1 mb-1 text-white">           
+        <%= success %>       
+    </span>   
+</div>   
+<% } %>
+
+<% if(typeof error !== 'undefined' && error.length>0){ %>
+    <div id="flash-message" class="absolute top-5 left-1/2 -translate-x-1/2 -translate-y-1/2 p-3 rounded-md bg-red-500">
+        <span class="inline-block mt-1 mb-1 text-white">
+            <%= error %>
+        </span>
     </div>
-    <div class="w-[80%] h-screen flex m-5 gap-5 flex-col ">
-        <div class="flex items-start gap-5 flex-wrap">
-            <% products.forEach(function(product){ %>
-            <div class="w-60">
-              <div class="w-full h-52 bg-[#<%=product.bgcolor%>] flex items-center justify-center">
-                <img class="h-[12rem]" src="data:image/jpeg;base64,<%= product.image.toString('base64') %>"
-                                alt="">  
-              </div>
-              <div class="w-full px-4 py-4 justify-between items-center flex text-[#<%= product.textcolor %>] bg-[#<%=product.panelcolor%>]">
-                <div>
-                   <h3><%= product.name %></h3>
-                   <% if(product.discount!==0){%>
-                      <h4 >
-                      <span class="line-through text-red-500">₹ <%= product.price %></span>
-                      <span> ₹ <%= product.price-product.discount %></span>
+<% } %>
+
+<div class="pt-20 w-full min-h-screen flex items-start">     
+    <div class="w-[20%] min-h-screen flex flex-col bg-sky-200 fixed left-0 top-16 z-30">         
+        <div class="items-center flex gap-2 mt-3 ml-3 ">             
+            <h3>Sort by</h3>           
+            <form action="/shop" method="get">            
+                <select class="px-2 py-1 border-[1px] rounded-md" name="Sortby" onchange="this.form.submit()">             
+                    <option value="Popular" <%= Sortby === 'Popular'? 'selected' : '' %>>Popular</option>             
+                    <option value="Newest" <%= Sortby === 'Newest'? 'selected' : '' %>>Newest</option>            
+                </select>           
+            </form>         
+        </div>         
+        <div class="flex flex-col m-3">            
+            <a class="mb-2 w-fit block <%= collection === 'new' ? 'font-bold' : '' %>" href="/shop?collection=new">New Collections</a>            
+            <a class="mb-2 <%= !collection && !discount && !available ? 'font-bold' : '' %>" href="/shop">All Products</a>            
+            <a class="mb-2 <%= discount ? 'font-bold' : '' %>" href="/shop?discount=true">Discounted Products</a>            
+            <a class="mb-2" href="#" style="font-weight: bold;">Filter By:</a>            
+            <a class="mb-2 <%= available ? 'font-bold' : '' %>" href="/shop?available=true">Availability</a>            
+            <a class="mb-2 <%= discount ? 'font-bold' : '' %>" href="/shop?discount=true">Discount</a>         
+        </div>     
+    </div>     
+    
+    <div class="w-[80%] flex m-5 gap-5 flex-col ml-[20%] pl-5">
+        <!-- Show search results info -->
+        <% if(typeof searchQuery !== 'undefined' && searchQuery) { %>
+        <div class="mb-4">
+            <h2 class="text-xl font-semibold">Search results for "<%= searchQuery %>"</h2>
+            <p class="text-gray-600"><%= products.length %> products found</p>
+            <a href="/shop" class="text-blue-500 hover:underline">Clear search</a>
+        </div>
+        <% } %>
+        
+        <div class="flex items-start gap-5 flex-wrap">             
+            <% if(products.length > 0) { %>
+                <% products.forEach(function(product){ %>             
+                <div class="w-60 <%= !product.available ? 'opacity-75' : '' %>">               
+                    <div class="w-full h-52 bg-[#<%=product.bgcolor%>] flex items-center justify-center relative">                 
+                        <img class="h-[12rem] <%= !product.available ? 'grayscale' : '' %>" 
+                             src="data:image/jpeg;base64,<%= product.image.toString('base64') %>" alt="<%= product.name %>">
+                        
+                        <% if(!product.available) { %>
+                        <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                            <span class="text-white font-bold text-lg">OUT OF STOCK</span>
+                        </div>
+                        <% } %>
+                    </div>               
                     
-                    </h4>
-                      <%} else{%>
-                        <h4>₹ <%= product.price %></h4>
-                        <%}%>
-                </div>
-                <div>
-                    <a class="w-7  h-5 bg-white rounded-full" href="/addtocart/<%= product._id %>">
-                        <i class="ri-add-line"></i>
+                    <div class="w-full px-4 py-4 justify-between items-center flex text-[#<%= product.textcolor %>] bg-[#<%=product.panelcolor%>]">                 
+                        <div>                    
+                            <h3><%= product.name %></h3>                    
+                            <% if(product.discount!==0){%>                       
+                            <h4>                       
+                                <span class="line-through text-red-500">₹ <%= product.price %></span>                       
+                                <span> ₹ <%= product.price-product.discount %></span>                                          
+                            </h4>                       
+                            <%} else{%>                         
+                            <h4>₹ <%= product.price %></h4>                         
+                            <%}%>                 
+                        </div>                 
+                        
+                        <div>
+                            <% if(product.available) { %>
+                            <a class="w-7 h-5 bg-white rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors" 
+                               href="/addtocart/<%= product._id %>">
+                                <i class="ri-add-line"></i>
+                            </a>
+                            <% } else { %>
+                            <button class="w-7 h-5 bg-gray-400 rounded-full flex items-center justify-center cursor-not-allowed opacity-50" 
+                                    disabled>
+                                <i class="ri-close-line"></i>
+                            </button>
+                            <% } %>
+                        </div>               
+                    </div>             
+                </div>             
+                <% }) %>
+            <% } else { %>
+                <div class="w-full text-center py-12">
+                    <h3 class="text-xl text-gray-600 mb-4">No products found</h3>
+                    <% if(typeof searchQuery !== 'undefined' && searchQuery) { %>
+                        <p class="text-gray-500 mb-4">Try adjusting your search terms or filters</p>
+                    <% } %>
+                    <a href="/shop" class="bg-sky-500 text-white px-6 py-2 rounded-md hover:bg-sky-600 transition-colors">
+                        View All Products
                     </a>
                 </div>
-              </div>
-            </div>
-            <% }) %>
-        </div>
-    </div>
+            <% } %>
+        </div>     
+    </div> 
 </div>
-<% if(success.length > 0){ %>
-  <script>
-    const flashMessage = document.getElementById('flash-message');
-    setTimeout(() => {
-      flashMessage.style.display = 'none';
-    }, 3000);
-  </script>
+
+<% if(success.length > 0||(typeof error !== 'undefined'&& error.length>0)){ %>   
+<script>     
+    const flashMessage = document.getElementById('flash-message');     
+    setTimeout(() => {       
+        flashMessage.style.display = 'none';     
+    }, 3000);   
+</script> 
 <% } %>

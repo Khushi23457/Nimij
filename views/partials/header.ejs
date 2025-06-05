@@ -8,22 +8,34 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="font-['helvetica_now_display']">
-    <nav class="fixed w-full py-5  px-3 bg-sky-500 text-white text-center text-2xl flex justify-between">
+    <nav class="fixed w-full py-5 px-3 bg-sky-500 text-white text-center text-2xl flex justify-between z-50">
         <h3>Nimij</h3>
         <% var loggedin=typeof loggedin!=="undefined"? loggedin:true %>
+        <% var currentPage=typeof currentPage!=="undefined"? currentPage:"" %>
         <div class="justify-between gap-5 flex">
             <% if(loggedin && user && user._id){ %>
+                <%if(currentPage==="shop"){ %>
+                    <form action="/shop" method="GET" class="relative">
+                        <input 
+                            type="text" 
+                            name="q" 
+                            placeholder="Search products..." 
+                            class="text-gray-800 text-base rounded-lg border-2 border-white outline-none border-blue-200 px-2 py-1"
+                        >
+                        <button type="submit" class="cursor-pointer ml-2 text-base">
+                            Search <i class="ri-search-eye-line"></i>
+                        </button>
+                    </form>
+                <% }%>
                 <a href="/cart/<%= user._id %>">Cart</a>
                 <a href="/shop">Shop</a>
                 <a href="/users/myorders/<%= user._id %>">Orders</a>
             <% } %>
             <% if(loggedin){ %>
-            <a href="/logout">Logout</a>
+                <a href="/logout">Logout</a>
             <% }%>
-            
             <a href="/ownerlogin">Owner-access</a>
         </div>
-       
     </nav>
 </body>
 </html>

@@ -18,36 +18,79 @@ router.get("/decrease-quantity/:productid", isloggedin, decreaseQuantity);
 
 router.get("/logout",logout);
 
-router.get("/shop",isloggedin, async function(req,res){
-    const Sortby=req.query.Sortby|| 'Popular';
-    const collection=req.query.collection
-    const discount=req.query.discount==='true'
-    const available=req.query.available==='true'
-    let loggedin=true;
-    let query={}
-    let products;
-    let selectedopt={}
+router.get("/shop", isloggedin, async function(req, res) {
+    try {
+        const { q, Sortby = 'Popular', collection, discount, available } = req.query;
+        let loggedin = true;
+        let query = {};
+        let products;
+        let selectedopt = {};
 
-    if(collection==='new'){
-        const oneMonthAgo=new Date()
-        oneMonthAgo.setMonth(oneMonthAgo.getMonth()-1)
-        query.createdAt={$gte:oneMonthAgo}
-    }
-    if(discount){
-        query.discount = { $gt: 0 };
-    }
-    if(available){
-       query.available=true
-    }
+        if (q && q.trim() !== '') {
+            const searchitem = q.trim();
+            
+            const searchWords = searchitem.toLowerCase().split(/\s+/).filter(word => word.length > 0);
+            
+            const wordRegexArray = searchWords.map(word => ({
+                $or: [
+                    { name: { $regex: word, $options: 'i' } },
+                    { description: { $regex: word, $options: 'i' } }
+                ]
+            }));
+            
+            if (wordRegexArray.length > 0) {
+                query.$or = wordRegexArray.reduce((acc, curr) => {
+                    return acc.concat(curr.$or);
+                }, []);
+            }
+            
+            searchWords.forEach(word => {
+                if (!isNaN(parseFloat(word))) {
+                    query.$or.push({ discount: { $eq: parseFloat(word) } });
+                }
+            });
+        }
 
-    if(Sortby==='Newest'){
-        selectedopt={createdAt:-1}
-    }else{
-        selectedopt={cartcount:-1,createdAt:-1}
+        if (collection === 'new') {
+            const oneMonthAgo = new Date()
+            oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1)
+            query.createdAt = { $gte: oneMonthAgo }
+        }
+
+        if (discount === 'true') {
+            query.discount = { $gt: 0 };
+        }
+
+        if (available === 'true') {
+            query.available = true
+        }
+
+        if (Sortby === 'Newest') {
+            selectedopt = { createdAt: -1 }
+        } else {
+            selectedopt = { cartcount: -1, createdAt: -1 }
+        }
+
+        products = await productModel.find(query).sort(selectedopt);
+        let success = req.flash('success');
+
+        res.render("shop", {
+            currentPage: 'shop',
+            products,
+            success,
+            user: req.user,
+            Sortby,
+            collection: collection || null,
+            discount: discount === 'true',
+            available: available === 'true',
+            loggedin,
+            searchQuery: q || '',
+            req: req
+        });
+    } catch (err) {
+        req.flash("error", "Failed to fetch products");
+        res.redirect("/shop");
     }
-    products=await productModel.find(query).sort(selectedopt);
-    let success=req.flash('success');
-    res.render("shop",{products ,success ,user:req.user,Sortby,collection,discount,available,loggedin});
 })
 router.get("/ownerlogin", async function(req,res){
     let loggedin=false;
