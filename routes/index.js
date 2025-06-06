@@ -8,14 +8,22 @@ const {showCart,addToCart,increaseQuantity,decreaseQuantity}=require('../control
 
 router.get("/",function(req,res){
     let error=req.flash('error')
+    let success=req.flash('success')
     let loggedin=false;
-    res.render("index" ,{error,loggedin,user:null});
+    res.render("index" ,{error,success,loggedin,user:null});
 });
 router.get("/cart/:id", isloggedin, showCart);
 router.get("/addtocart/:productid", isloggedin, addToCart);
 router.get("/increase-quantity/:productid", isloggedin, increaseQuantity);
 router.get("/decrease-quantity/:productid", isloggedin, decreaseQuantity);
-
+router.get('/updatepassword',function (req, res){
+    res.render('updatepassword', {
+        error:req.flash('error'),
+        success:req.flash('success'),
+        user:null,
+        loggedin: false
+    });
+});
 router.get("/logout",logout);
 
 router.get("/shop", isloggedin, async function(req, res) {

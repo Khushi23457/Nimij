@@ -1,20 +1,20 @@
 <%- include('./partials/header') %>
 
-<% if(success.length>0){ %>   
-<div id="flash-message" class="fixed top-20 left-1/2 -translate-x-1/2 p-3 rounded-md bg-blue-500 z-40">       
-    <span class="inline-block mt-1 mb-1 text-white">           
-        <%= success %>       
-    </span>   
-</div>   
-<% } %>
+   <% if(success.length>0){ %>
+        <div id="flash-message" class="absolute top-5 left-1/2 -translate-x-1/2 -translate-y-1/2 p-3 rounded-md bg-blue-500 z-40">
+            <span class="inline-block mt-1 mb-1 text-white">
+                <%= success %>
+            </span>
+        </div>
+        <% } %>
 
 <% if(typeof error !== 'undefined' && error.length>0){ %>
-    <div id="flash-message" class="absolute top-5 left-1/2 -translate-x-1/2 -translate-y-1/2 p-3 rounded-md bg-red-500">
+    <div id="flash-message" class="absolute top-5 left-1/2 -translate-x-1/2 -translate-y-1/2 p-3 rounded-md bg-red-500 z-40">
         <span class="inline-block mt-1 mb-1 text-white">
             <%= error %>
         </span>
     </div>
-<% } %>
+    <% } %>
 
 <div class="pt-20 w-full min-h-screen flex items-start">     
     <div class="w-[20%] min-h-screen flex flex-col bg-sky-200 fixed left-0 top-16 z-30">         
@@ -38,7 +38,6 @@
     </div>     
     
     <div class="w-[80%] flex m-5 gap-5 flex-col ml-[20%] pl-5">
-        <!-- Show search results info -->
         <% if(typeof searchQuery !== 'undefined' && searchQuery) { %>
         <div class="mb-4">
             <h2 class="text-xl font-semibold">Search results for "<%= searchQuery %>"</h2>

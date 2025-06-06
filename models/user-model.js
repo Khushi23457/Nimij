@@ -1,10 +1,17 @@
 const mongoose=require('mongoose');
 
-
 const userSchema=mongoose.Schema({
     fullname:String,
     email:String,
     password:String,
+    isEmailVerified: {
+        type: Boolean,
+        default: false
+    },
+    emailVerificationToken: String,
+    emailVerificationExpires: Date,
+    passwordResetToken: String,
+    passwordResetExpires: Date,
     cart:[{
         product:{type:mongoose.Schema.Types.ObjectId,
         ref:"product",
