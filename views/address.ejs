@@ -33,7 +33,7 @@
                                 <p class="text-sm"><%= address.city %>, <%= address.state %> - <%= address.pincode %></p>
                                 <p class="text-sm mt-1">Phone: <%= address.phone %></p>
                                 <div class="flex justify-center gap-2 mt-3">
-                                    <a href="/users/place-order/<%=address._id%>" class="px-3 py-2 bg-black text-white rounded-md text-sm">Deliver Here</a>
+                                    <a href="/users/selectpayment/<%=address._id%>" class="px-3 py-2 bg-black text-white rounded-md text-sm">Deliver Here</a>
                                     <a href="/users/editAddress/<%=address._id%>" class="px-3 py-2 bg-blue-500 text-white rounded-md text-sm">Edit</a>
                                     <a href="/users/deleteAddress/<%=address._id%>" class="px-3 py-2 bg-red-500 text-white rounded-md text-sm">Delete</a>
                                 </div>

@@ -77,7 +77,19 @@
                         <div>
                             <h3 class="text-lg font-semibold mb-2">Order Summary</h3>
                             <div class="border rounded p-3">
-                                
+                                <div class="flex justify-between mb-2">
+                                    <span>Payment Method:</span>
+                                    <span class="font-medium"><%= order.paymentMethod || 'N/A' %></span>
+                                </div>
+                                <div class="flex justify-between mb-2">
+                                    <span>Payment Status:</span>
+                                    <span class="<%= order.paymentStatus === 'paid' ? 'text-green-600' : 
+                                                   order.paymentStatus === 'pending' ? 'text-yellow-600' : 
+                                                   order.paymentStatus === 'failed' ? 'text-red-600' : 
+                                                   'text-gray-600' %> font-medium">
+                                        <%= order.paymentStatus ? order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1) : 'N/A' %>
+                                    </span>
+                                </div>
                                 <div class="border-t pt-2 mt-2 flex justify-between font-semibold">
                                     <span>Total:</span>
                                     <span>₹<%= order.totalAmount %></span>

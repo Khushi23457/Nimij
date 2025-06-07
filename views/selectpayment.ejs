@@ -1,0 +1,207 @@
+<%- include('./partials/header') %>
+
+<% if(success && success.length > 0) { %>
+    <div id="flash-message" class="fixed top-5 left-1/2 transform -translate-x-1/2 z-50 p-3 rounded-md bg-blue-500">
+        <span class="text-white"><%= success %></span>
+    </div>
+<% } %>
+
+<% if(error && error.length > 0) { %>
+    <div id="flash-message" class="fixed top-5 left-1/2 transform -translate-x-1/2 z-50 p-3 rounded-md bg-red-500">
+        <span class="text-white"><%= error %></span>
+    </div>
+<% } %>
+
+<div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8">
+        
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h3 class="text-lg font-semibold mb-4">Payment Options</h3>
+            
+            
+            <div class="mb-4">
+                <form action="/users/place-order/<%= addressId %>" method="POST">
+                    <button type="submit" class="w-full p-4 border-2 border-gray-200 rounded-lg hover:border-green-500 hover:bg-green-50 transition-all duration-200 flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="w-6 h-6 border-2 border-gray-400 rounded-full mr-3 flex items-center justify-center">
+                                <div class="w-3 h-3 bg-green-500 rounded-full opacity-0 transition-opacity"></div>
+                            </div>
+                            <div class="text-left">
+                                <div class="font-semibold">Cash on Delivery</div>
+                                <div class="text-sm text-gray-600">Pay when your order arrives</div>
+                            </div>
+                        </div>
+                    </button>
+                </form>
+            </div>
+            
+             
+            <div class="mb-4">
+                <button id="razorpay-btn" class="w-full p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all duration-200 flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="w-6 h-6 border-2 border-gray-400 rounded-full mr-3 flex items-center justify-center">
+                            <div class="w-3 h-3 bg-blue-500 rounded-full opacity-0 transition-opacity"></div>
+                        </div>
+                        <div class="text-left">
+                            <div class="font-semibold">Pay Online</div>
+                            <div class="text-sm text-gray-600">Credit/Debit Card, UPI, Net Banking</div>
+                        </div>
+                    </div>
+                </button>
+            </div>
+        </div>
+        
+        <div class="text-center">
+            <a href="/users/address/<%= user._id %>" class="text-gray-600 hover:text-gray-800 underline">
+                ← Back to Address Selection
+            </a>
+        </div>
+    </div>
+</div>
+
+ 
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+    
+    const flashMessage = document.getElementById('flash-message');
+    if (flashMessage) {
+        setTimeout(() => {
+            flashMessage.style.display = 'none';
+        }, 3000);
+    }
+
+   
+    document.getElementById('razorpay-btn').addEventListener('click', async function() {
+        const button = this;
+        
+        try {
+            
+            button.disabled = true;
+            button.innerHTML = '<div class="flex items-center justify-center"><div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div><span class="ml-2">Processing...</span></div>';
+  
+            const response = await fetch('/users/placeorderOnline/<%= addressId %>', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            
+            const responseText = await response.text();
+            console.log('Raw response:', responseText);
+            
+            let orderData;
+            try {
+                orderData = JSON.parse(responseText);
+            } catch (parseError) {
+                console.error('JSON parse error:', parseError);
+                throw new Error('Invalid response format from server');
+            }
+            
+            console.log('Order data received:', orderData);
+            
+            if (!orderData.success) {
+                throw new Error(orderData.message || 'Failed to create order');
+            }
+            
+          
+            const options = {
+                key: '<%= razorpayKeyId %>',
+                amount: orderData.amount * 100,
+                currency: orderData.currency || 'INR',
+                name: orderData.name || 'Your Store',
+                description: orderData.description || 'Order Payment',
+                order_id: orderData.razorpayOrderId,
+                prefill: {
+                    name: orderData.prefill?.name || '',
+                    email: orderData.prefill?.email || '',
+                    contact: orderData.prefill?.contact || ''
+                },
+                theme: {
+                    color: '#3399cc'
+                },
+                handler: async function(response) {
+                    console.log('Payment response:', response);
+                    
+                    try {
+                        const verifyResponse = await fetch('/users/verify-payment', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_signature: response.razorpay_signature,
+                                orderId: orderData.orderId
+                            })
+                        });
+                        
+                        const verifyText = await verifyResponse.text();
+                        console.log('Verify response text:', verifyText);
+                        
+                        let verifyData;
+                        try {
+                            verifyData = JSON.parse(verifyText);
+                        } catch (parseError) {
+                            console.error('Verify JSON parse error:', parseError);
+                            throw new Error('Invalid verification response format');
+                        }
+                        
+                        console.log('Verification response:', verifyData);
+                        
+                        if (verifyData.success) {
+                           
+                            alert('Payment successful! Redirecting to orders...');
+                            window.location.href = verifyData.redirectUrl;
+                        } else {
+                            throw new Error(verifyData.message || 'Payment verification failed');
+                        }
+                    } catch (error) {
+                        console.error('Verification error:', error);
+                        alert('Payment verification failed: ' + error.message);
+                        resetButton();
+                    }
+                },
+                modal: {
+                    ondismiss: function() {
+                        console.log('Payment modal dismissed');
+                        resetButton();
+                    }
+                }
+            };
+            
+            console.log('Opening Razorpay with options:', options);
+            
+            // Open Razorpay checkout
+            const rzp = new Razorpay(options);
+            rzp.on('payment.failed', function (response) {
+                console.error('Payment failed:', response.error);
+                alert('Payment failed: ' + (response.error?.description || 'Unknown error'));
+                resetButton();
+            });
+            
+            rzp.open();
+            
+        } catch (error) {
+            console.error('Payment initialization error:', error);
+            alert('Failed to initiate payment: ' + error.message);
+            resetButton();
+        }
+        
+        function resetButton() {
+            button.disabled = false;
+            button.innerHTML = `
+                <div class="flex items-center">
+                    <div class="w-6 h-6 border-2 border-gray-400 rounded-full mr-3 flex items-center justify-center">
+                        <div class="w-3 h-3 bg-blue-500 rounded-full opacity-0 transition-opacity"></div>
+                    </div>
+                    <div class="text-left">
+                        <div class="font-semibold">Pay Online</div>
+                        <div class="text-sm text-gray-600">Credit/Debit Card, UPI, Net Banking</div>
+                    </div>
+                </div>
+            `;
+        }
+    });
+</script>
